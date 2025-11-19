@@ -9,24 +9,25 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
+        'is_approved',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -43,6 +44,31 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_approved' => 'boolean',
         ];
+    }
+
+    /**
+     * Cek apakah user adalah Superadmin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin' && $this->is_approved;
+    }
+
+    /**
+     * Cek apakah user adalah Admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin' && $this->is_approved;
+    }
+
+    /**
+     * Cek apakah user memiliki role (Admin atau Superadmin).
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role && $this->is_approved;
     }
 }
