@@ -55,6 +55,25 @@
                     </div>
                 </div>
 
+                <!-- Search -->
+                <div class="px-6 pt-5 pb-3">
+                    <form method="GET" class="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+                        <div class="flex-1">
+                            <input type="text"
+                                   name="search"
+                                   value="{{ request('search') }}"
+                                   class="w-full sm:w-64 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   placeholder="Cari nama atau email...">
+                        </div>
+                        <div>
+                            <button type="submit"
+                                    class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
+                                Cari
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- Table Container -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -65,6 +84,9 @@
                                 </th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Email
+                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    Tanggal Dibuat
                                 </th>
                                 <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Status
@@ -96,6 +118,9 @@
                                             </svg>
                                             {{ $admin->email }}
                                         </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        {{ $admin->created_at ? $admin->created_at->format('d M Y') : '-' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @if($admin->is_approved)
@@ -232,7 +257,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-12 text-center">
+                                    <td colspan="5" class="px-6 py-12 text-center">
                                         <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                                         </svg>

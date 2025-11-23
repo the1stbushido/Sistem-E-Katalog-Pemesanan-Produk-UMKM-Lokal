@@ -10,10 +10,34 @@ use Illuminate\Validation\Rules\Password;
 
 class AdminManagementController extends Controller
 {
-    public function index()
+    /**
+     * Daftar admin + search.
+     */
+    public function index(Request $request)
     {
-        // Ambil semua user dengan role 'admin'
-        $admins = User::where('role', 'admin')->orderBy('is_approved', 'asc')->orderBy('name', 'asc')->paginate(20);
+        // Query dasar: semua user dengan role admin
+        $query = User::where('role', 'admin');
+
+        // Jika ada parameter search, filter berdasarkan nama atau email
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Urutan:
+        // 1. yang belum disetujui dulu (is_approved ascending)
+        // 2. urut nama
+        // 3. yang paling baru dibuat di atas (created_at desc)
+        $admins = $query
+            ->orderBy('is_approved', 'asc')
+            ->orderBy('name', 'asc')
+            ->orderByDesc('created_at')
+            ->paginate(20)
+            ->withQueryString(); // supaya ?search tetap ikut saat pindah halaman
+
         return view('superadmin.admins.index', compact('admins'));
     }
 
@@ -26,6 +50,7 @@ class AdminManagementController extends Controller
             $user->update(['is_approved' => true]);
             return redirect()->back()->with('success', 'Akun admin berhasil disetujui.');
         }
+
         return redirect()->back()->with('error', 'Gagal menyetujui akun.');
     }
 
@@ -40,10 +65,12 @@ class AdminManagementController extends Controller
 
         if ($user->role === 'admin') {
             $user->update([
-                'password' => Hash::make($request->password)
+                'password' => Hash::make($request->password),
             ]);
+
             return redirect()->back()->with('success', 'Password admin berhasil diubah.');
         }
+
         return redirect()->back()->with('error', 'Gagal mengubah password.');
     }
 
@@ -56,11 +83,12 @@ class AdminManagementController extends Controller
         if ($user->id === auth()->id()) {
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
-        
+
         if ($user->role === 'admin') {
             $user->delete();
             return redirect()->back()->with('success', 'Akun admin berhasil dihapus.');
         }
+
         return redirect()->back()->with('error', 'Gagal menghapus akun.');
     }
 }
