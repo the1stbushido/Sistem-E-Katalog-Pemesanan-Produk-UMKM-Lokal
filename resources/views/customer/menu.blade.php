@@ -443,126 +443,169 @@
 
 {{-- JavaScript untuk Category Pills Active State & Smooth Scroll --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const categoryPills = document.querySelectorAll('.category-pill');
-        const sections = document.querySelectorAll('[id^="semua"], [id^="kategori-"]');
+  // Ganti JavaScript di bagian bawah menu.blade.php dengan kode ini:
+
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryPills = document.querySelectorAll('.category-pill');
+    const sections = document.querySelectorAll('[id^="semua"], [id^="kategori-"]');
+    
+    let lastActiveId = null;
+    let isUserScrolling = false;
+    let scrollTimeout;
+    
+    // Function untuk update active pill
+    function updateActivePill(targetId) {
+        // Cegah update jika sudah active (menghindari kedip-kedip)
+        if (lastActiveId === targetId) return;
         
-        // Intersection Observer untuk Auto-Update Active State
-        const observer = new IntersectionObserver(entries => {
+        lastActiveId = targetId;
+        const activeLink = document.querySelector(`a[href="#${targetId}"]`);
+        
+        if (activeLink) {
+            // Hapus semua active
             categoryPills.forEach(pill => pill.classList.remove('active'));
-
-            let activeFound = false;
             
-            entries.forEach(entry => {
-                const targetId = entry.target.id;
-                const activeLink = document.querySelector(`a[href="#${targetId}"]`);
-                
-                if (entry.isIntersecting && entry.boundingClientRect.top > 0 && entry.boundingClientRect.top < window.innerHeight / 2) { 
-                    if (activeLink) {
-                        activeLink.classList.add('active');
-                        activeFound = true;
-                    }
-                }
+            // Tambah active ke yang sesuai
+            activeLink.classList.add('active');
+            
+            // Auto scroll kategori pill ke view (tanpa smooth agar tidak bentrok)
+            activeLink.scrollIntoView({
+                behavior: 'auto',
+                block: 'nearest',
+                inline: 'center'
             });
-
-            // Fallback: Aktifkan 'Semua Menu' jika di top
-            if (!activeFound && window.scrollY < 100) {
-                const semuaLink = document.querySelector('a[href="#semua"]');
-                if (semuaLink) semuaLink.classList.add('active');
+        }
+    }
+    
+    // Intersection Observer untuk Auto-Update Active State
+    const observer = new IntersectionObserver(entries => {
+        // Skip jika user sedang scroll manual dari klik
+        if (isUserScrolling) return;
+        
+        let mostVisibleSection = null;
+        let maxRatio = 0;
+        
+        // Cari section yang paling terlihat
+        entries.forEach(entry => {
+            if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+                maxRatio = entry.intersectionRatio;
+                mostVisibleSection = entry.target;
             }
-        }, {
-            rootMargin: '0px 0px -50% 0px',
-            threshold: 0.1 
         });
-
-        sections.forEach(section => observer.observe(section));
-
-        // Smooth Scroll saat klik kategori
-        categoryPills.forEach(pill => {
-            pill.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
-                const targetElement = document.getElementById(targetId);
-                
-                if (targetElement) {
-                    const offset = 150; // Sesuaikan dengan tinggi header sticky
-                    const targetPosition = targetElement.offsetTop - offset;
-                    
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-
-                    // Update active state instantly
-                    categoryPills.forEach(p => p.classList.remove('active'));
-                    this.classList.add('active');
-                }
-            });
-        });
+        
+        // Update active state berdasarkan section yang paling terlihat
+        if (mostVisibleSection && maxRatio > 0.3) { // Minimum 30% visible
+            updateActivePill(mostVisibleSection.id);
+        }
+        
+        // Fallback: Aktifkan 'Semua Menu' jika di paling top
+        if (window.scrollY < 100) {
+            updateActivePill('semua');
+        }
+    }, {
+        rootMargin: '-30% 0px -30% 0px',
+        threshold: [0, 0.3, 0.5, 0.7, 1]
     });
 
-    // Function untuk add to cart (placeholder - sesuaikan dengan implementasi Anda)
-    function addToCart(productId, productName, price) {
-        // Implementasi add to cart
-        console.log('Add to cart:', productId, productName, price);
-        
-        // Show toast notification
-        showToast(`${productName} ditambahkan ke pesanan`);
-    }
+    // Observe semua sections
+    sections.forEach(section => observer.observe(section));
 
-    // Toast Notification
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast-notification';
-        toast.innerHTML = `
-            <i class="bi bi-check-circle-fill me-2"></i>
-            <span>${message}</span>
-        `;
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 9999;
-            animation: slideInRight 0.3s ease;
-        `;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
+    // Smooth Scroll saat klik kategori
+    categoryPills.forEach(pill => {
+        pill.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Set flag bahwa user sedang klik
+            isUserScrolling = true;
+            
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                const offset = 150;
+                const targetPosition = targetElement.offsetTop - offset;
+                
+                // Update active langsung
+                updateActivePill(targetId);
+                
+                // Scroll ke target
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+                
+                // Reset flag setelah scroll selesai
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isUserScrolling = false;
+                }, 1500);
+            }
+        });
+    });
+});
 
-    // Add CSS animations for toast
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
+// Function untuk add to cart (placeholder - sesuaikan dengan implementasi Anda)
+function addToCart(productId, productName, price) {
+    // Implementasi add to cart
+    console.log('Add to cart:', productId, productName, price);
+    
+    // Show toast notification
+    showToast(`${productName} ditambahkan ke pesanan`);
+}
+
+// Toast Notification
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span>${message}</span>
     `;
-    document.head.appendChild(style);
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add CSS animations for toast
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>
 @endsection
