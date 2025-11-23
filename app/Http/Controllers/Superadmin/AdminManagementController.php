@@ -1,60 +1,66 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Superadmin;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
-class ProfileController extends Controller
+class AdminManagementController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
+    public function index()
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        // Ambil semua user dengan role 'admin'
+        $admins = User::where('role', 'admin')->orderBy('is_approved', 'asc')->orderBy('name', 'asc')->paginate(20);
+        return view('superadmin.admins.index', compact('admins'));
     }
 
     /**
-     * Update the user's profile information.
+     * Setujui akun admin yang baru mendaftar
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function approve(User $user)
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->role === 'admin' && !$user->is_approved) {
+            $user->update(['is_approved' => true]);
+            return redirect()->back()->with('success', 'Akun admin berhasil disetujui.');
         }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return redirect()->back()->with('error', 'Gagal menyetujui akun.');
     }
 
     /**
-     * Delete the user's account.
+     * Ganti password akun admin
      */
-    public function destroy(Request $request): RedirectResponse
+    public function changePassword(Request $request, User $user)
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $user = $request->user();
+        if ($user->role === 'admin') {
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+            return redirect()->back()->with('success', 'Password admin berhasil diubah.');
+        }
+        return redirect()->back()->with('error', 'Gagal mengubah password.');
+    }
 
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+    /**
+     * Hapus akun admin
+     */
+    public function destroy(User $user)
+    {
+        // Pastikan superadmin tidak menghapus dirinya sendiri
+        if ($user->id === auth()->id()) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+        
+        if ($user->role === 'admin') {
+            $user->delete();
+            return redirect()->back()->with('success', 'Akun admin berhasil dihapus.');
+        }
+        return redirect()->back()->with('error', 'Gagal menghapus akun.');
     }
 }
