@@ -122,12 +122,16 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // Hapus gambar dari storage
-        if ($product->image_url) {
-            Storage::disk('public')->delete($product->image_url);
-        }
-        
-        $product->delete();
-        return redirect()->route('admin.products.index')->with('success', 'ProduK berhasil dihapus.');
+        // 1. **(Penting) Hapus data anak terlebih dahulu**
+        // Anda perlu menghapus semua entri di order_items yang merujuk ke produk ini.
+        // Jika ada model relasi lain (seperti keranjang, ulasan, dll), hapus juga.
+
+        // Contoh: Asumsi Model Product memiliki relasi 'orderItems'
+        $product->orderItems()->delete(); 
+
+        // 2. Sekarang hapus produk induk
+        $product->delete(); // Ini adalah baris yang memicu SQL Error sebelumnya
+
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus!');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -44,4 +45,10 @@ class Product extends Model
             'is_available' => 'boolean',
         ];
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_id'); // <-- Hapus 'App\Models\'
+    }
+
 }
