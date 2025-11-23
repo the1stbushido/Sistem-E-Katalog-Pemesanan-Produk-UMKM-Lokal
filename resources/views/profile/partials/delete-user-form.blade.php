@@ -1,3 +1,11 @@
+@php
+    // Cek apakah pengguna yang sedang login memiliki peran 'admin' atau 'superadmin'.
+    // Asumsi: Jika Admin, maka akun tersebut dilindungi dari penghapusan mandiri melalui UI.
+    $isProtected = Auth::user()->role === 'admin' || Auth::user()->role === 'superadmin';
+@endphp
+
+{{-- @unless ($isProtected) akan menampilkan konten di dalamnya HANYA JIKA BUKAN Admin/Superadmin --}}
+@unless ($isProtected)
 <section class="space-y-6">
     <header>
         <h2 class="text-lg font-medium text-gray-900">
@@ -53,3 +61,4 @@
         </form>
     </x-modal>
 </section>
+@endunless
