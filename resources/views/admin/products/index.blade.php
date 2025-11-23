@@ -58,6 +58,37 @@
                     </div>
                 </div>
 
+                <!-- Search + Info -->
+                <div class="px-6 pt-5 pb-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                    <form method="GET" class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <div class="flex-1">
+                            <input type="text"
+                                   name="search"
+                                   value="{{ request('search') }}"
+                                   class="w-full sm:w-64 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   placeholder="Cari nama produk...">
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit"
+                                    class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
+                                Cari
+                            </button>
+                            @if(request('search'))
+                                <a href="{{ route('admin.products.index') }}"
+                                   class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">
+                                    Reset
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+
+                    @if($products instanceof \Illuminate\Pagination\AbstractPaginator)
+                        <div class="text-xs text-gray-500 text-right">
+                            Menampilkan {{ $products->firstItem() }} - {{ $products->lastItem() }} dari {{ $products->total() }} produk
+                        </div>
+                    @endif
+                </div>
+
                 <!-- Table Container -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -185,6 +216,18 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination Footer -->
+                @if($products instanceof \Illuminate\Pagination\AbstractPaginator && $products->hasPages())
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                        <div class="text-sm text-gray-600">
+                            Menampilkan {{ $products->firstItem() }} - {{ $products->lastItem() }} dari {{ $products->total() }} produk
+                        </div>
+                        <div>
+                            {{ $products->links() }}
+                        </div>
+                    </div>
+                @endif
 
             </div>
         </div>

@@ -21,12 +21,10 @@ class OrderController extends Controller
 
     /**
      * Tampilkan detail satu pesanan.
-     * FUNGSI INI YANG AKAN KITA PAKAI
      */
     public function show(Order $order)
     {
         // Load relasi 'items' dan 'product' di dalam 'items'
-        // Ini akan mengambil semua item (Nasi Goreng, Es Teh) di dalam pesanan ini
         $order->load('items.product');
         
         // Kirim data order ke view baru 'admin.orders.show'

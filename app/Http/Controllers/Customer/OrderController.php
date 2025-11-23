@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Customer; // <-- Pastikan namespace Anda BENAR
+namespace App\Http\Controllers\Customer; 
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

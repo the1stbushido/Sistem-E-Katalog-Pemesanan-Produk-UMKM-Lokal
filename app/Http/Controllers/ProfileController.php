@@ -48,14 +48,12 @@ class ProfileController extends Controller
             return back()->with('error', 'Akun Administrator tidak dapat dihapus melalui antarmuka ini.');
         }
 
-        // ... Lanjutkan dengan logika penghapusan akun yang sudah ada ...
         // Pastikan password diverifikasi sebelum penghapusan user
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
 
         $user = $request->user();
-        
-        // ... dst.
+       
     }
 }

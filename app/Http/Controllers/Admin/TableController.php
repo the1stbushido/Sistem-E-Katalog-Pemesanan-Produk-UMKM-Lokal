@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Table; // <-- Pastikan Model Table di-import
+use App\Models\Table; 
 use Illuminate\Http\Request;
 
 class TableController extends Controller

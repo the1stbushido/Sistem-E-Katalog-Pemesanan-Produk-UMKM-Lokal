@@ -7,19 +7,26 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage; // Penting untuk hapus gambar
+use Illuminate\Support\Facades\Storage; 
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        // Ambil produk beserta relasi kategori-nya
-        $products = Product::with('category')->orderBy('created_at', 'desc')->get();
-        return view('admin.products.index', compact('products'));
-    }
+   public function index(Request $request)
+{
+    $products = Product::with('category')
+        ->when($request->search, function ($query, $search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10)         
+        ->withQueryString();    
+
+    return view('admin.products.index', compact('products'));
+}
+
 
     /**
      * Show the form for creating a new resource.
@@ -28,7 +35,7 @@ class ProductController extends Controller
     {
         // Ambil semua kategori untuk dropdown di form
         $categories = Category::all();
-        // Mode 'create', JANGAN kirim 'product'
+       
         return view('admin.products.form', compact('categories'));
     }
 
@@ -68,7 +75,6 @@ class ProductController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     * INI ADALAH FUNGSI YANG 99% SALAH DI FILE LAMA ANDA
      */
     public function edit(Product $product)
     {
@@ -76,7 +82,6 @@ class ProductController extends Controller
         $categories = Category::all();
         
         // KIRIM 'product' DAN 'categories' ke view
-        // File lama Anda mungkin lupa mengirim 'product'
         return view('admin.products.form', compact('product', 'categories'));
     }
 
@@ -122,15 +127,12 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // 1. **(Penting) Hapus data anak terlebih dahulu**
-        // Anda perlu menghapus semua entri di order_items yang merujuk ke produk ini.
-        // Jika ada model relasi lain (seperti keranjang, ulasan, dll), hapus juga.
+        // 1. Hapus data anak 
 
-        // Contoh: Asumsi Model Product memiliki relasi 'orderItems'
         $product->orderItems()->delete(); 
 
-        // 2. Sekarang hapus produk induk
-        $product->delete(); // Ini adalah baris yang memicu SQL Error sebelumnya
+        // 2. hapus produk induk
+        $product->delete(); 
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus!');
     }
