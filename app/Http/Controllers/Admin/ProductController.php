@@ -14,15 +14,20 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-   public function index(Request $request)
+  public function index(Request $request)
 {
     $products = Product::with('category')
         ->when($request->search, function ($query, $search) {
             $query->where('name', 'like', '%' . $search . '%');
         })
         ->orderBy('created_at', 'desc')
-        ->paginate(10)         
-        ->withQueryString();    
+        ->paginate(10)
+        ->withQueryString();
+
+    
+    if ($request->ajax()) {
+        return view('admin.products.index', compact('products'))->render();
+    }
 
     return view('admin.products.index', compact('products'));
 }

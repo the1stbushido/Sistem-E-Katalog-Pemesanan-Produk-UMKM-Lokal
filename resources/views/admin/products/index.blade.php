@@ -60,7 +60,7 @@
 
                 <!-- Search + Info -->
                 <div class="px-6 pt-5 pb-3 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                    <form method="GET" class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <form id="product-search-form" method="GET" class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <div class="flex-1">
                             <input type="text"
                                    name="search"
@@ -72,13 +72,11 @@
                             <button type="submit"
                                     class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
                                 Cari
+                            <button type="button"
+                                id="reset-search"
+                                class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">
+                                Reset
                             </button>
-                            @if(request('search'))
-                                <a href="{{ route('admin.products.index') }}"
-                                   class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100">
-                                    Reset
-                                </a>
-                            @endif
                         </div>
                     </form>
 
@@ -89,145 +87,148 @@
                     @endif
                 </div>
 
-                <!-- Table Container -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Gambar
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Nama Produk
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Kategori
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Harga
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Aksi
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($products as $product)
-                                <tr class="hover:bg-gray-50 transition duration-200">
-                                    <!-- Gambar -->
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if ($product->image_url)
-                                            <img src="{{ asset('storage/' . $product->image_url) }}" 
-                                                 alt="{{ $product->name }}" 
-                                                 class="w-20 h-20 object-cover rounded-lg shadow-md ring-2 ring-gray-200">
-                                        @else
-                                            <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                </svg>
-                                            </div>
-                                        @endif
-                                    </td>
-
-                                    <!-- Nama Produk -->
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-semibold text-gray-900">{{ $product->name }}</div>
-                                        @if($product->description)
-                                            <div class="text-xs text-gray-500 mt-1 max-w-xs truncate">{{ $product->description }}</div>
-                                        @endif
-                                    </td>
-
-                                    <!-- Kategori -->
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); color: #667eea;">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                                            </svg>
-                                            {{ $product->category->name ?? 'N/A' }}
-                                        </span>
-                                    </td>
-
-                                    <!-- Harga -->
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center text-sm font-bold text-gray-900">
-                                            <svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            Rp {{ number_format($product->price, 0, ',', '.') }}
-                                        </div>
-                                    </td>
-
-                                    <!-- Status -->
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        @if ($product->is_available)
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Tersedia
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Habis
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <!-- Aksi -->
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('admin.products.edit', $product) }}" 
-                                               class="inline-flex items-center px-3 py-2 border border-transparent text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                </svg>
-                                                Edit
-                                            </a>
-                                            <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus produk {{ $product->name }}?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-xs font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
+                <!-- Table + Pagination Wrapper (untuk AJAX) -->
+                <div id="products-table-wrapper">
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-12 text-center">
-                                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                                        </svg>
-                                        <p class="text-gray-500 font-medium">Belum ada data produk.</p>
-                                        <p class="text-sm text-gray-400 mt-1">Klik tombol "Tambah Produk" untuk membuat produk baru.</p>
-                                    </td>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Gambar
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Nama Produk
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Kategori
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Harga
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Aksi
+                                    </th>
                                 </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse ($products as $product)
+                                    <tr class="hover:bg-gray-50 transition duration-200">
+                                        <!-- Gambar -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if ($product->image_url)
+                                                <img src="{{ asset('storage/' . $product->image_url) }}" 
+                                                     alt="{{ $product->name }}" 
+                                                     class="w-20 h-20 object-cover rounded-lg shadow-md ring-2 ring-gray-200">
+                                            @else
+                                                <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                    </svg>
+                                                </div>
+                                            @endif
+                                        </td>
 
-                <!-- Pagination Footer -->
-                @if($products instanceof \Illuminate\Pagination\AbstractPaginator && $products->hasPages())
-                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-                        <div class="text-sm text-gray-600">
-                            Menampilkan {{ $products->firstItem() }} - {{ $products->lastItem() }} dari {{ $products->total() }} produk
-                        </div>
-                        <div>
-                            {{ $products->links() }}
-                        </div>
+                                        <!-- Nama Produk -->
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm font-semibold text-gray-900">{{ $product->name }}</div>
+                                            @if($product->description)
+                                                <div class="text-xs text-gray-500 mt-1 max-w-xs truncate">{{ $product->description }}</div>
+                                            @endif
+                                        </td>
+
+                                        <!-- Kategori -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); color: #667eea;">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                                </svg>
+                                                {{ $product->category->name ?? 'N/A' }}
+                                            </span>
+                                        </td>
+
+                                        <!-- Harga -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center text-sm font-bold text-gray-900">
+                                                <svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                Rp {{ number_format($product->price, 0, ',', '.') }}
+                                            </div>
+                                        </td>
+
+                                        <!-- Status -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if ($product->is_available)
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Tersedia
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Habis
+                                                </span>
+                                            @endif
+                                        </td>
+
+                                        <!-- Aksi -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <a href="{{ route('admin.products.edit', $product) }}" 
+                                                   class="inline-flex items-center px-3 py-2 border border-transparent text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                    </svg>
+                                                    Edit
+                                                </a>
+                                                <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus produk {{ $product->name }}?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-xs font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-12 text-center">
+                                            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                            </svg>
+                                            <p class="text-gray-500 font-medium">Belum ada data produk.</p>
+                                            <p class="text-sm text-gray-400 mt-1">Klik tombol "Tambah Produk" untuk membuat produk baru.</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
-                @endif
+
+                    <!-- Pagination Footer -->
+                    @if($products instanceof \Illuminate\Pagination\AbstractPaginator && $products->hasPages())
+                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                            <div class="text-sm text-gray-600">
+                                Menampilkan {{ $products->firstItem() }} - {{ $products->lastItem() }} dari {{ $products->total() }} produk
+                            </div>
+                            <div>
+                                {{ $products->links() }}
+                            </div>
+                        </div>
+                    @endif
+                </div>
 
             </div>
         </div>
@@ -250,4 +251,59 @@
             animation: slide-in 0.5s ease;
         }
     </style>
+
+    <!-- AJAX Search + Pagination -->
+    <script>
+        const productForm = document.getElementById('product-search-form');
+        const productsWrapper = document.getElementById('products-table-wrapper');
+
+        function loadProducts(url) {
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newWrapper = doc.querySelector('#products-table-wrapper');
+
+                if (newWrapper && productsWrapper) {
+                    productsWrapper.innerHTML = newWrapper.innerHTML;
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        if (productForm && productsWrapper) {
+            productForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const url = this.action || "{{ route('admin.products.index') }}";
+                const params = new URLSearchParams(new FormData(this));
+                loadProducts(url + '?' + params.toString());
+            });
+        } 
+
+        // Reset search
+        const resetSearchButton = document.getElementById('reset-search');
+        if (resetSearchButton) {
+            resetSearchButton.addEventListener('click', function () {
+                const url = "{{ route('admin.products.index') }}";
+                loadProducts(url);
+                if (productForm) {
+                    productForm.reset();
+                }
+            });
+        }
+
+        // Pagination via AJAX
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('#products-table-wrapper .pagination a');
+            if (!link) return;
+
+            e.preventDefault();
+            loadProducts(link.href);
+        });
+    </script>
 </x-app-layout>
