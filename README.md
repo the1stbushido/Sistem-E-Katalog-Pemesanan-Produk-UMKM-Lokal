@@ -94,10 +94,20 @@ Aplikasi web untuk mengelola katalog produk UMKM lokal dengan sistem pemesanan d
    mysql -u root -e "CREATE DATABASE ekatalog_umkm"
    ```
 
-6. **Run Migration**
+6. **Run Migration & Seeder**
    ```bash
-   php artisan migrate
+   php artisan migrate --seed
    ```
+   
+   Seeder akan otomatis membuat:
+   - User (Admin & Superadmin)
+   - Kategori produk
+   - Produk sample
+   - Meja
+
+   **Default Login:**
+   - **Superadmin**: `superadmin@resto.com` / `password`
+   - **Admin**: `admin@resto.com` / `password`
 
 7. **Create Storage Link**
    ```bash
@@ -117,40 +127,7 @@ Aplikasi web untuk mengelola katalog produk UMKM lokal dengan sistem pemesanan d
 10. **Access Application**
     - Web: http://127.0.0.1:8000
     - API: http://127.0.0.1:8000/api
-
----
-
-## 👤 Default Users
-
-Setelah migration, buat user admin/superadmin dengan:
-
-```bash
-php artisan tinker
-```
-
-```php
-// Buat Superadmin
-$user = new App\Models\User();
-$user->name = 'Super Admin';
-$user->email = 'superadmin@example.com';
-$user->password = bcrypt('password');
-$user->role = 'superadmin';
-$user->is_approved = true;
-$user->save();
-
-// Buat Admin
-$user = new App\Models\User();
-$user->name = 'Admin';
-$user->email = 'admin@example.com';
-$user->password = bcrypt('password');
-$user->role = 'admin';
-$user->is_approved = true;
-$user->save();
-```
-
----
-
-## 📚 Dokumentasi API
+    - Login dengan kredensial default di atas
 
 Dokumentasi lengkap API tersedia di: **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)**
 
