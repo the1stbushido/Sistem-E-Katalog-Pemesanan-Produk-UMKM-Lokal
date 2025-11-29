@@ -294,6 +294,10 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 Author
 
+**Andika Fitra Darmawan**
+**Andika Avialukita**
+**Amanda Verina**
+**Devakhri Farhan Hafizhan**
 **Tio Andrian**
 
 ---
