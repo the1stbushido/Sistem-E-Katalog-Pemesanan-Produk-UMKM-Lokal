@@ -139,7 +139,7 @@ POST http://127.0.0.1:8000/api/login
 Content-Type: application/json
 
 {
-  "email": "admin@example.com",
+  "email": "admin@resto.com",
   "password": "password"
 }
 ```
@@ -247,7 +247,7 @@ API ini siap digunakan untuk mobile app dengan flow:
 # Login
 curl -X POST http://127.0.0.1:8000/api/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"password"}'
+  -d '{"email":"admin@resto.com","password":"password"}'
 
 # Get Products
 curl -X GET http://127.0.0.1:8000/api/products \
